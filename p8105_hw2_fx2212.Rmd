@@ -6,9 +6,11 @@ output: github_document
 ---
 ```{r}
 library(tidyverse)
+library(readxl)
 ```
 
 ## Problem 1 
+
 ### clean the data in pols-month.csv
 
 ```{r}
@@ -98,3 +100,76 @@ For the snp dataset, the dimension is (`r dim(snp_df)`), the range of years is (
 For the unemployment dataset, the dimension is (`r dim(unemployment_df)`), the range of years is ( `r range(unemployment_df$year, na.rm = TRUE)`) and the names of key values include `r names(unemployment_df)`.
 
 For the resulting dataset, the dimension is (`r dim(merging_df)`), the range of years is ( `r range(merging_df$year, na.rm = TRUE)`) and the names of key values include `r names(merging_df)`.
+
+## Problem 2
+
+### Read and clean the Mr. Trash Wheel sheet
+
+```{r}
+mr_trash_wheel =
+  read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel") |> 
+  janitor::clean_names() |>
+  filter(!is.na(dumpster)) |> 
+  mutate(
+    sports_balls = as.integer(round(sports_balls)),
+    wheel = "Mr. Trash Wheel",
+    year = as.numeric(year)
+  )
+  
+```
+
+### Read and clean the Professor Trash Wheel
+
+```{r}
+prof_trash_wheel <- read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel") |> 
+  janitor::clean_names()  |> 
+  filter(!is.na(dumpster))  |> 
+  mutate(
+    wheel = "Professor Trash Wheel",
+    year = as.numeric(year)
+  )
+
+```
+
+### Read and clean the Gwynnda Trash Wheel
+```{r}
+gwynnda_trash_wheel <- read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel")  |> 
+  janitor::clean_names()  |> 
+  filter(!is.na(dumpster))  |> 
+  mutate(
+    wheel = "Gwynnda Trash Wheel",
+    year = as.numeric(year)
+  )
+```
+
+### combine dataset
+
+```{r}
+all_trash_wheel <- bind_rows(mr_trash_wheel, prof_trash_wheel, gwynnda_trash_wheel)
+```
+
+### description of the resulting dataset
+
+```{r}
+total_prof_weight =
+  all_trash_wheel  |> 
+  filter(wheel == "Professor Trash Wheel")  |> 
+  summarise(total_weight = sum(weight_tons, na.rm = TRUE))
+```
+
+
+```{r}
+gwynnda_june_2022 =
+  all_trash_wheel |> 
+  filter(wheel == "Gwynnda Trash Wheel", 
+         year == 2022, 
+         month == "June")  |> 
+  summarise(total_cigarettes = sum(cigarette_butts, na.rm = TRUE))
+```
+
+
+The number of observations in the resulting dataset is `r nrow(all_trash_wheel)` and the key variables include `r names(all_trash_wheel)`.
+
+The total weight of trash collected by Professor Trash Wheel is `r total_prof_weight` and the total number of cigarette butts collected by Gwynnda in June of 2022 is `r gwynnda_june_2022`.
+
+
