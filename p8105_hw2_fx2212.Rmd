@@ -107,7 +107,7 @@ For the resulting dataset, the dimension is (`r dim(merging_df)`), the range of 
 
 ```{r}
 mr_trash_wheel =
-  read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel") |> 
+  read_excel("202509 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel") |> 
   janitor::clean_names() |>
   filter(!is.na(dumpster)) |> 
   mutate(
@@ -121,7 +121,7 @@ mr_trash_wheel =
 ### Read and clean the Professor Trash Wheel
 
 ```{r}
-prof_trash_wheel <- read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel") |> 
+prof_trash_wheel <- read_excel("202509 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel") |> 
   janitor::clean_names()  |> 
   filter(!is.na(dumpster))  |> 
   mutate(
@@ -133,11 +133,11 @@ prof_trash_wheel <- read_excel("202409 Trash Wheel Collection Data.xlsx", sheet 
 
 ### Read and clean the Gwynnda Trash Wheel
 ```{r}
-gwynnda_trash_wheel <- read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel")  |> 
+gwynns_trash_wheel <- read_excel("202509 Trash Wheel Collection Data.xlsx", sheet = "Gwynns Falls Trash Wheel")  |> 
   janitor::clean_names()  |> 
   filter(!is.na(dumpster))  |> 
   mutate(
-    wheel = "Gwynnda Trash Wheel",
+    wheel = "Gwynns Falls Trash Wheel",
     year = as.numeric(year)
   )
 ```
@@ -145,7 +145,7 @@ gwynnda_trash_wheel <- read_excel("202409 Trash Wheel Collection Data.xlsx", she
 ### combine dataset
 
 ```{r}
-all_trash_wheel <- bind_rows(mr_trash_wheel, prof_trash_wheel, gwynnda_trash_wheel)
+all_trash_wheel <- bind_rows(mr_trash_wheel, prof_trash_wheel, gwynns_trash_wheel)
 ```
 
 ### description of the resulting dataset
@@ -159,9 +159,9 @@ total_prof_weight =
 
 
 ```{r}
-gwynnda_june_2022 =
+gwynns_june_2022 =
   all_trash_wheel |> 
-  filter(wheel == "Gwynnda Trash Wheel", 
+  filter(wheel == "Gwynns Falls Trash Wheel", 
          year == 2022, 
          month == "June")  |> 
   summarise(total_cigarettes = sum(cigarette_butts, na.rm = TRUE))
@@ -170,6 +170,16 @@ gwynnda_june_2022 =
 
 The number of observations in the resulting dataset is `r nrow(all_trash_wheel)` and the key variables include `r names(all_trash_wheel)`.
 
-The total weight of trash collected by Professor Trash Wheel is `r total_prof_weight` and the total number of cigarette butts collected by Gwynnda in June of 2022 is `r gwynnda_june_2022`.
+The total weight of trash collected by Professor Trash Wheel is `r total_prof_weight` and the total number of cigarette butts collected by Gwynnda in June of 2022 is `r gwynns_june_2022`.
 
+## Problem 3
+
+### Create a single, well-organized dataset with all the information contained in these data files
+
+```{r}
+zip_codes = read_csv("zillow_data/Zip Codes.csv")
+Zip_zori_uc_sfrcondomfr_sm_month_NYC = read_csv("zillow_data/Zip_zori_uc_sfrcondomfr_sm_month_NYC.csv")
+
+
+```
 
