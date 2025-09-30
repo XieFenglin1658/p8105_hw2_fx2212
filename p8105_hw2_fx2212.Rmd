@@ -4,3 +4,97 @@ author: "Fenglin Xie"
 date: "2025-09-29"
 output: github_document
 ---
+```{r}
+library(tidyverse)
+```
+
+## Problem 1 
+### clean the data in pols-month.csv
+
+```{r}
+pols_month_df = 
+  read_csv("fivethirtyeight_datasets/pols-month.csv") |> 
+  janitor::clean_names() |> 
+  separate(
+    col = mon,
+    into = c("year", "month", "day")
+  ) |> 
+  mutate(
+    year = as.integer(year),
+    month = as.integer(month),
+    day = as.integer(day),
+    month = month.name[month],
+    president = case_when(
+      prez_gop == 1 ~ "gop",
+      prez_dem == 1 ~ "dem",
+      TRUE ~ NA_character_
+    )
+  ) |>
+  select(-prez_dem, -prez_gop, -day) 
+  
+```
+
+### clean the data in snp.csv
+
+```{r}
+snp_df =
+  read_csv("fivethirtyeight_datasets/snp.csv") |> 
+  janitor::clean_names() |>
+  mutate(
+    date = mdy(date)
+  ) |> 
+  mutate(
+    year = year(date),
+    month = month(date),
+    month = month.name[month]
+  ) |> 
+  select(year, month, close) |> 
+  arrange(year, match(month, month.name))
+```
+
+### tidy the unemployment data
+
+```{r}
+unemployment_df = 
+  read_csv("fivethirtyeight_datasets/unemployment.csv") |> 
+  janitor::clean_names() |> 
+  pivot_longer(
+    cols = jan:dec,
+    names_to = "month",
+    values_to = "unemployment_rate"
+  ) |> 
+  mutate(
+      month = case_when(
+      month == "jan" ~ "January",
+      month == "feb" ~ "February", 
+      month == "mar" ~ "March",
+      month == "apr" ~ "April",
+      month == "may" ~ "May",
+      month == "jun" ~ "June",
+      month == "jul" ~ "July",
+      month == "aug" ~ "August",
+      month == "sep" ~ "September",
+      month == "oct" ~ "October",
+      month == "nov" ~ "November",
+      month == "dec" ~ "December"
+    )
+  ) 
+```
+
+### Join the datasets
+
+```{r}
+merging_df =
+  left_join(pols_month_df, snp_df, by = c("year", "month")) |> 
+  left_join(unemployment_df, by = c("year", "month"))
+```
+
+### description of each dataset
+
+For the pols-month dataset, the dimension is (`r dim(pols_month_df)`), the range of years is ( `r range(pols_month_df$year, na.rm = TRUE)`) and the names of key values include `r names(pols_month_df)`.
+
+For the snp dataset, the dimension is (`r dim(snp_df)`), the range of years is ( `r range(snp_df$year, na.rm = TRUE)`) and the names of key values include `r names(snp_df)`.
+
+For the unemployment dataset, the dimension is (`r dim(unemployment_df)`), the range of years is ( `r range(unemployment_df$year, na.rm = TRUE)`) and the names of key values include `r names(unemployment_df)`.
+
+For the resulting dataset, the dimension is (`r dim(merging_df)`), the range of years is ( `r range(merging_df$year, na.rm = TRUE)`) and the names of key values include `r names(merging_df)`.
