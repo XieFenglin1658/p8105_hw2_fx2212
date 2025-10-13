@@ -213,7 +213,7 @@ zillow_rent = read_csv("zillow_data/Zip_zori_uc_sfrcondomfr_sm_month_NYC.csv",
   filter(!is.na(rent_price))
 
 rent_data <- zillow_rent |> 
-  inner_join(zip_codes, by = "zip_code")
+  left_join(zip_codes, by = "zip_code")
 
 ```
 
